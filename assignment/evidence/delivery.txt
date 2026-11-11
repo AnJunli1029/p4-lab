@@ -1,0 +1,88 @@
+mininet> h1 python3 send.py 10.16.0.2 "test h2" --tunnel 2 --hops 4
+###[ Ethernet ]### 
+  dst       = ff:ff:ff:ff:ff:ff
+  src       = 00:00:00:00:00:01
+  type      = 0x1212
+###[ MyTunnel ]### 
+     proto_id  = 2048
+     dst_id    = 2
+     hop_limit = 4
+###[ IP ]### 
+        version   = 4
+        ihl       = 5
+        tos       = 0x0
+        len       = 35
+        id        = 1
+        flags     = 
+        frag      = 0
+        ttl       = 64
+        proto     = udp
+        chksum    = 0x66a7
+        src       = 10.16.0.1
+        dst       = 10.16.0.2
+        \options   \
+###[ UDP ]### 
+           sport     = 4321
+           dport     = 4321
+           len       = 15
+           chksum    = 0x8fa9
+###[ Raw ]### 
+              load      = 'test h2'
+
+Sent from h1-eth0.
+mininet> h1 python3 send.py 10.16.0.3 "test h3" --tunnel 3 --hops 4
+###[ Ethernet ]### 
+  dst       = ff:ff:ff:ff:ff:ff
+  src       = 00:00:00:00:00:01
+  type      = 0x1212
+###[ MyTunnel ]### 
+     proto_id  = 2048
+     dst_id    = 3
+     hop_limit = 4
+###[ IP ]### 
+        version   = 4
+        ihl       = 5
+        tos       = 0x0
+        len       = 35
+        id        = 1
+        flags     = 
+        frag      = 0
+        ttl       = 64
+        proto     = udp
+        chksum    = 0x66a6
+        src       = 10.16.0.1
+        dst       = 10.16.0.3
+        \options   \
+###[ UDP ]### 
+           sport     = 4321
+           dport     = 4321
+           len       = 15
+           chksum    = 0x8ea8
+###[ Raw ]### 
+              load      = 'test h3'
+
+Sent from h1-eth0.
+mininet> sh tail -n 15 logs/h2.txt
+Listening on h2-eth0...
+Received (tunnelled, dst_id=2, hop_limit=2) from 10.16.0.1 to 10.16.0.2, TTL 64: 'test h2'
+mininet> sh tail -n 15 logs/h3.txt
+Listening on h3-eth0...
+Received (tunnelled, dst_id=3, hop_limit=2) from 10.16.0.1 to 10.16.0.3, TTL 64: 'test h3'
+mininet> h1 ping -c 2 h3
+PING 10.16.0.3 (10.16.0.3) 56(84) bytes of data.
+64 bytes from 10.16.0.3: icmp_seq=1 ttl=62 time=4.58 ms
+64 bytes from 10.16.0.3: icmp_seq=2 ttl=62 time=3.92 ms
+
+--- 10.16.0.3 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1002ms
+rtt min/avg/max/mdev = 3.917/4.249/4.582/0.332 ms
+mininet> exit
+*** Stopping 0 controllers
+
+*** Stopping 4 links
+....
+*** Stopping 2 switches
+s1 s2 
+*** Stopping 3 hosts
+h1 h2 h3 
+*** Done
